@@ -262,14 +262,10 @@ Your instructions or evals can start to become rather long and clutter your `pac
 
 The structure of the AI file is the same as in the `package.json` file.
 
-{% tab title="ai.yaml" %}
-
 ```yaml
 instructions: |
   When you don't know the user's first name, ask for it.
 ```
-
-{% endtab %}
 
 {% hint style="info" %}
 The AI file is optional. If you don't provide it, Raycast will use the instructions and evals from the `package.json` file. We found that [`yaml`](https://yaml.org/) and [`json5`](https://json5.org/) can be more readable for long instructions.
