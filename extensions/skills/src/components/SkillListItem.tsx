@@ -24,29 +24,25 @@ export function SkillListItem({ skill }: SkillListItemProps) {
       accessories={accessories}
       actions={
         <ActionPanel>
-          <ActionPanel.Section>
-            <Action.CopyToClipboard
-              title="Copy Install Command"
-              content={skill.installCommand}
+          <Action.CopyToClipboard
+            title="Copy Install Command"
+            content={skill.installCommand}
+          />
+          <Action.OpenInBrowser title="Open on Skills.sh" url={skill.url} />
+          {skill.repositoryUrl && (
+            <Action.OpenInBrowser
+              title="Open on GitHub"
+              url={skill.repositoryUrl}
+              shortcut={{ modifiers: ["cmd"], key: "o" }}
             />
-            <Action.OpenInBrowser title="Open on Skills.sh" url={skill.url} />
-            {skill.repositoryUrl && (
-              <Action.OpenInBrowser
-                title="Open Repository"
-                url={skill.repositoryUrl}
-                shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
-              />
-            )}
-          </ActionPanel.Section>
-          <ActionPanel.Section>
-            {skill.repositoryUrl && (
-              <Action.CopyToClipboard
-                title="Copy Repository URL"
-                content={skill.repositoryUrl}
-                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-              />
-            )}
-          </ActionPanel.Section>
+          )}
+          {skill.repositoryUrl && (
+            <Action.CopyToClipboard
+              title="Copy Repository URL"
+              content={skill.repositoryUrl}
+              shortcut={{ modifiers: ["cmd"], key: "c" }}
+            />
+          )}
         </ActionPanel>
       }
     />

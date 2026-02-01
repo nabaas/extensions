@@ -17,10 +17,10 @@ Search and discover agent skills from [skills.sh](https://skills.sh) directly in
 Search for skills from skills.sh with real-time results.
 
 **Actions:**
-- Copy Install Command (⌘C)
-- Open on skills.sh (⌘O)
-- Open Repository (⌘⇧O)
-- Copy Repository URL (⌘⇧C)
+- Copy Install Command (↵)
+- Open on skills.sh (⌘↵)
+- Open on GitHub (⌘O)
+- Copy Repository URL (⌘C)
 
 ### Trending Skills
 
