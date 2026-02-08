@@ -1,0 +1,134 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Raycast extension that enables searching and discovering agent skills from skills.sh. Users can search for skills and browse trending skills directly within Raycast.
+
+## Development Commands
+
+```bash
+# Start development mode with hot reload
+npm run dev
+
+# Build extension for production
+npm run build
+
+# Run ESLint
+npm run lint
+
+# Publish to Raycast Store
+npm run publish
+```
+
+**Note:** Raycast CLI commands use `ray` (e.g., `ray develop`, `ray build`, `ray lint`).
+
+## Architecture
+
+### Extension Structure
+
+The extension follows Raycast's command-based architecture with two main entry points:
+
+1. **Search Command** (`src/index.tsx`): Main search interface with debounced search (only shows results when user types)
+2. **Trending Command** (`src/trending.tsx`): Displays trending agent skills using the "trending" sort order
+
+### Data Flow
+
+```
+User Input → useSkillsSearch Hook → fetchSkills (API) → REST API Request → Skill Model
+Trending → fetchPopularSkills (API) → REST API Request → Skill Model
+```
+
+### Key Components
+
+- **`src/components/SkillListItem.tsx`**: Reusable list item component with actions:
+  - Copy Install Command (↵)
+  - Open on skills.sh (⌘↵)
+  - Open on GitHub (⌘O) - conditional on repositoryUrl
+  - Copy Repository URL (⌘C) - conditional on repositoryUrl
+- **`src/hooks/useSkillsSearch.ts`**: Manages search state with 600ms debounce and abort controller for request cancellation. Returns empty array when search query is empty.
+- **`src/utils/format.ts`**: Formats install counts (4.8K, 1.2M)
+- **`src/utils/errors.ts`**: Error handling utilities
+
+### API & Data Fetching
+
+**Important:** The extension uses the official skills.sh REST API (same endpoint used by `npx skills find`):
+
+**API Endpoint:**
+- `GET https://skills.sh/api/search?q={query}&limit={limit}`
+- Returns JSON with skill metadata including install counts
+
+**Response Format:**
+```json
+{
+  "query": "testing",
+  "searchType": "fuzzy",
+  "skills": [
+    {
+      "id": "webapp-testing",
+      "name": "webapp-testing",
+      "installs": 4797,
+      "topSource": "anthropics/skills"
+    }
+  ],
+  "count": 10,
+  "duration_ms": 7
+}
+```
+
+**Implementation Details:**
+- Uses native `fetch` API (no external HTTP library needed)
+- Default limit: 50 results per query
+- Minimum query length: 2 characters (returns empty for shorter queries)
+- Server-side fuzzy search
+- Install counts included in response
+
+**Limitations:**
+- Descriptions not available in search results (only on detail pages)
+- Sort parameter (`all-time`/`trending`/`hot`) not yet used by API
+- No pagination support in current implementation
+
+### Data Model
+
+The `Skill` interface (`src/model/skill.ts`) includes:
+- `id`, `name`, `description`, `owner`, `repo`
+- `installCount` (from API), `installCommand` (always `npx skills add owner/repo@skill`)
+- `url` (skills.sh link), `repositoryUrl` (GitHub), `rank`, `tags`
+
+Note: `description`, `rank`, and `tags` are not populated from search API (empty/undefined)
+
+### Search Behavior
+
+- **Search Command**: Only fetches and displays results when user types a search query (minimum 2 characters)
+- **Empty State**: Shows "Start typing to search" when no query is entered
+- **Trending Command**: Automatically loads trending skills on mount using `fetchPopularSkills("trending")`
+
+## UI Patterns
+
+- **Empty States**: Different messages for "no search results" vs "start typing to search"
+- **Accessories**: Display install count in list items with formatted numbers
+- **Debounced Search**: 600ms delay to avoid excessive API calls during typing
+- **No Default Results**: Search command shows nothing until user types (no popular/history fallback)
+- **Action Panel**: Simple flat list of actions without sections
+- **Icons**: Icon.Plug for skill items, Icon.MagnifyingGlass for empty states
+- **Client-side Filtering**: Trending command includes search to filter results locally
+
+## Development Notes
+
+- The extension uses Raycast API v1.103.6+ and @raycast/utils for hooks
+- TypeScript strict mode enabled
+- Target ES2022 with CommonJS modules
+- Uses native `fetch` API for HTTP requests (no axios/node-fetch needed)
+- No unit tests currently in the repository (manual testing only)
+- No external dependencies beyond Raycast SDK
+- Icon: 512x512 PNG format (assets/icon.png)
+- Screenshots: 3 screenshots at 2000x1250 pixels (metadata/)
+
+## Raycast Store Submission
+
+The extension has been submitted to the Raycast Store:
+- PR: https://github.com/raycast/extensions/pull/25036
+- Follows all Raycast extension guidelines
+- Includes proper metadata, screenshots, and documentation
+- CHANGELOG.md follows format: `## [Change Title] - {PR_MERGE_DATE}`
